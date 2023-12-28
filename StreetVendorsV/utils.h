@@ -1,13 +1,17 @@
 #pragma once
 #include <types.h>
 
-extern const Hash hotdogStandHash;	//prop_hotdogstand_01
-extern const Hash burgerStandHash;	//prop_burgerstand_01
-extern const Hash S_M_M_StrVend_01;	//S_M_M_StrVend_01
-extern const Hash S_M_Y_StrVend_01;	//S_M_Y_StrVend_01
-extern const Hash hotdogHash;		//prop_cs_hotdog_01
-extern const Hash eatenHotdogHash;	//prop_cs_hotdog_02
-extern const Hash burgerHash;		//prop_cs_burger_01
+extern const Hash hotdogStandHash;		//prop_hotdogstand_01
+extern const Hash burgerStandHash;		//prop_burgerstand_01
+extern const Hash S_M_M_StrVend_01;		//S_M_M_StrVend_01
+extern const Hash S_M_Y_StrVend_01;		//S_M_Y_StrVend_01
+extern const Hash A_M_Y_GenStreet_01;	//A_M_Y_GenStreet_01
+extern const Hash A_M_Y_GenStreet_02;	//A_M_Y_GenStreet_02
+extern const Hash A_M_Y_Downtown_01;	//A_M_Y_Downtown_01
+extern const Hash A_M_Y_Latino_01;		//A_M_Y_Latino_01
+extern const Hash hotdogHash;			//prop_cs_hotdog_01
+extern const Hash eatenHotdogHash;		//prop_cs_hotdog_02
+extern const Hash burgerHash;			//prop_cs_burger_01
 extern const int defaultAF;
 extern const int upperSecondaryAF;
 extern char* chooseAnimDict;

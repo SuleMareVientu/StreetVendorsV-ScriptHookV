@@ -5,6 +5,10 @@ const Hash hotdogStandHash = -1581502570;	//prop_hotdogstand_01
 const Hash burgerStandHash = 1129053052;	//prop_burgerstand_01
 const Hash S_M_M_StrVend_01 = -829353047;	//S_M_M_StrVend_01
 const Hash S_M_Y_StrVend_01 = -1837161693;	//S_M_Y_StrVend_01
+const Hash A_M_Y_GenStreet_01 = -1736970383;//A_M_Y_GenStreet_01
+const Hash A_M_Y_GenStreet_02 = 891398354;	//A_M_Y_GenStreet_02
+const Hash A_M_Y_Downtown_01 = 766375082;	//A_M_Y_Downtown_01
+const Hash A_M_Y_Latino_01 = 321657486;		//A_M_Y_Latino_01
 const Hash hotdogHash = -1729226035;		//prop_cs_hotdog_01
 const Hash eatenHotdogHash = -1490012335;	//prop_cs_hotdog_02
 const Hash burgerHash = -2054442544;		//prop_cs_burger_01
@@ -89,6 +93,14 @@ bool FindVendor(Object vendorStand)
 			case S_M_Y_StrVend_01:
 				return true;	break;
 			case S_M_M_StrVend_01:
+				return true;	break;
+			case A_M_Y_GenStreet_01:
+				return true;	break;
+			case A_M_Y_GenStreet_02:
+				return true;	break;
+			case A_M_Y_Downtown_01:
+				return true;	break;
+			case A_M_Y_Latino_01:
 				return true;	break;
 			}
 		}
