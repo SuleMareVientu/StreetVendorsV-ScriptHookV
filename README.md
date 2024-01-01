@@ -1,8 +1,8 @@
 # StreetVendorsV-ScriptHookV [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 ![Screenshot](https://github.com/SuleMareVientu/StreetVendorsV-ScriptHookV/blob/images/StreetVendorsV.png?raw=true)  
 This mod aims to reintroduce the street vendors present in the previous GTA entry.  
-Now you can walk up to a vendor stand and, if the vendor is present, buy a hotdog/burger for 5$ and heal your health, with fully working animations and money system.  
-Most of the behaviour of the code was taken from the decompiled GTA:IV scripts themselves, to remain as truthful to the original as possible ([vendor.sco](https://gist.github.com/SuleMareVientu/d94aad46046caa8d90fec093016d0414)).
+Now you can walk up to a vendor stand and, if the vendor is present, buy a hotdog/burger for 5$ and heal your health, with fully working animations and a money system.  
+Most of the behavior of the code was taken from the decompiled GTA:IV scripts themselves, to remain as truthful to the original as possible ([vendor.sco](https://gist.github.com/SuleMareVientu/d94aad46046caa8d90fec093016d0414)).
 
 **Requires [ScriptHookV](http://www.dev-c.com/gtav/scripthookv/)**
 
@@ -19,4 +19,4 @@ This work is licensed under a
 
 [cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
 [cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
-[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.sv
