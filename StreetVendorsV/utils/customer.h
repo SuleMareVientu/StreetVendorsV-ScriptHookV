@@ -1,7 +1,6 @@
 #pragma once
 
 #include <types.h>
-#include <set>
 #include "utils.h"
 
 static constexpr char* chooseAnimDict = "gestures@m@standing@casual";
@@ -41,8 +40,6 @@ class Customer {
 	Ped vendor = NULL;
 	const int timeout = 27500; // in ms
 	Timer timeoutTimer;
-	const int interval = 30000; // in ms
-	Timer intervalTimer;
 	bool shouldPlayerStandStill = false;
 	int sequence = -1;
 	int sequenceState = FINISHED;
@@ -54,11 +51,9 @@ class Customer {
 	Vector3 destination = { NULL, NULL, NULL, NULL, NULL, NULL };
 	Object food = NULL;
 	bool PedExists();
-	bool IsPedPlayer();
 	void PedTaskWalkToAndWait(float x, float y, float z, float heading, int nextState);
 	void PlayAnim(char* animDict, char* anim, int flag, int duration = -1);
 	void PlayAnimAndWait(char* animDict, char* anim, int flag, int nextState, bool standStill = false, int duration = -1);
-	void SetVendorBusy();
 	void StartSequence(int type);
 	void PlayHotdogEatSequence();
 	void PlayBurgerEatSequence();

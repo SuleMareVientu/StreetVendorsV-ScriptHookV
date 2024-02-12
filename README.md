@@ -2,14 +2,14 @@
 ![Screenshot](https://github.com/SuleMareVientu/StreetVendorsV-ScriptHookV/blob/images/StreetVendorsV.png?raw=true)  
 This mod aims to reintroduce the street vendors present in the previous GTA entry.  
 Now you can walk up to a vendor stand and, if the vendor is present, buy a hotdog/burger for 5$ and heal your health, with fully working animations and a money system.  
-Random peds can walk up to the vendors and eat, same as the player.  
+[npcs branch, EXPERIMENTAL] Random peds can walk up to the vendors and eat, same as the player.  
 Most of the behavior of the code was inspired by the decompiled GTA:IV scripts themselves, to remain as truthful to the original as possible ([vendor.sco](https://gist.github.com/SuleMareVientu/d94aad46046caa8d90fec093016d0414)).
 
 **Requires [ScriptHookV](http://www.dev-c.com/gtav/scripthookv/)**
 ## Installation: 
 Simply extract the ASI inside the game's root directory (where you have installed GTA:V and Script Hook V, **not** inside the "scripts" folder).
 
-**v1.2** - Changelog: Rewrote the entire script, it's now asynchronous. Random peds can now walk up to the vendors and eat.
+**v1.2** - Changelog: Rewrote the entire script, it's now asynchronous and generally more polished. Player will play the eat speech after he's done eating and non-main characters can you buy food too.
 
 **v1.1** - Changelog: Added four rare models for vendors ("backup-vendors" inside ambientpedmodelsets.meta, only two points in the game).
 
