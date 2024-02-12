@@ -9,11 +9,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="script.cpp" />
-    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="utils\utils.cpp" />
+	<ClCompile Include="utils\customer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />
-    <ClInclude Include="utils.h" />
+    <ClInclude Include="utils\utils.h" />
+	<ClInclude Include="utils\customer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8D82F34A-1D64-465B-84B1-37F89AD3D20B}</ProjectGuid>

@@ -1,51 +1,53 @@
 #pragma once
 #include <types.h>
 
-extern const Hash hotdogStandHash;		//prop_hotdogstand_01
-extern const Hash burgerStandHash;		//prop_burgerstand_01
-extern const Hash S_M_M_StrVend_01;		//S_M_M_StrVend_01
-extern const Hash S_M_Y_StrVend_01;		//S_M_Y_StrVend_01
-extern const Hash A_M_Y_GenStreet_01;	//A_M_Y_GenStreet_01
-extern const Hash A_M_Y_GenStreet_02;	//A_M_Y_GenStreet_02
-extern const Hash A_M_Y_Downtown_01;	//A_M_Y_Downtown_01
-extern const Hash A_M_Y_Latino_01;		//A_M_Y_Latino_01
-extern const Hash hotdogHash;			//prop_cs_hotdog_01
-extern const Hash eatenHotdogHash;		//prop_cs_hotdog_02
-extern const Hash burgerHash;			//prop_cs_burger_01
-extern const int defaultAF;
-extern const int upperSecondaryAF;
-extern char* chooseAnimDict;
-extern char* chooseAnim;
-extern char* takeAnimDict;
-extern char* takeAnim;
-extern char* eatingAnimDict;
-extern char* eatingStartAnim;
-extern char* eatingEndAnim;
-extern char* burgerAnimDict;
-extern char* burgerAnim;
-extern Ped vendor;
+constexpr Hash hotdogStandHash = -1581502570;	//prop_hotdogstand_01
+constexpr Hash burgerStandHash = 1129053052;	//prop_burgerstand_01
+constexpr Hash S_M_M_StrVend_01 = -829353047;	//S_M_M_StrVend_01
+constexpr Hash S_M_Y_StrVend_01 = -1837161693;	//S_M_Y_StrVend_01
+constexpr Hash A_M_Y_GenStreet_01 = -1736970383;//A_M_Y_GenStreet_01
+constexpr Hash A_M_Y_GenStreet_02 = 891398354;	//A_M_Y_GenStreet_02
+constexpr Hash A_M_Y_Downtown_01 = 766375082;	//A_M_Y_Downtown_01
+constexpr Hash A_M_Y_Latino_01 = 321657486;		//A_M_Y_Latino_01
+constexpr Hash hotdogHash = -1729226035;		//prop_cs_hotdog_01
+constexpr Hash eatenHotdogHash = -1490012335;	//prop_cs_hotdog_02
+constexpr Hash burgerHash = -2054442544;		//prop_cs_burger_01
+constexpr Hash MichaelPed = 225514697;			//joaat(Michael)
+constexpr Hash FranklinPed = -1692214353;		//joaat(Franklin)
+constexpr Hash TrevorPed = -1686040670;			//joaat(Trevor)
+constexpr Hash SP0_TOTAL_CASH = 52740893;		//joaat(SP0_TOTAL_CASH)
+constexpr Hash SP1_TOTAL_CASH = 1153264002;		//joaat(SP1_TOTAL_CASH)
+constexpr Hash SP2_TOTAL_CASH = -1921710979;	//joaat(SP2_TOTAL_CASH)
+
+class Timer {
+	int gameTimer = 0;
+public:
+	void Set(int value);
+	int Get();
+};
 
 void PrintHelp(char* string);
 Object GetVendorStand(Vector3 pedLoc, float radious);
 int GetStandType(Object stand);
-bool FindVendor(Object vendorStand);
-void RequestAnimDict(char* animDict);
-void RequestModel(Hash model);
-Object CreateObject(Hash model, Vector3 loc, bool setRotation, float rotX, float rotY, float rotZ);
+bool IsPedVendor(Ped ped);
+bool FindVendor(Object vendorStand, Ped* vendor);
+bool RequestAnimDict(char* animDict);
+bool RequestModel(Hash model);
+Object CreateObject(Hash model, Vector3 loc = { NULL, NULL, NULL, NULL, NULL, NULL }, float rotX = NULL, float rotY = NULL, float rotZ = NULL);
 void DeleteObject(Object obj);
 int GetPlayerCash(Ped playerPed);
 void SetPlayerCash(Ped playerPed, int currentCash, int change);
 bool PrintVendorMessage(int playerCash, int standType);
 bool AdditionalChecks(Ped ped);
-void SetPlayerControl(Ped playerPed, bool toggle);
-void DisablePlayerActionsThisFrame(Ped playerPed);
+void DisablePlayerActionsThisFrame();
+void DisablePlayerControlThisFrame();
 void PlayAmbientSpeech(Ped ped, char* speechName);
-void PedTaskWalkToAndWait(Ped ped, float x, float y, float z, float heading);
-void PlayAnim(Ped ped, char* animDict, char* anim, int flag, int duration);
-void PlayAnimAndWait(Ped ped, char* animDict, char* anim, int flag, int duration);
-void PlayAnimWithSpeedAndWait(Ped ped, char* animDict, char* anim, int flag, float speed, int duration);
-void PlayHotdogEatSequence(Ped ped);
-void PlayBurgerEatSequence(Ped ped);
+
+enum eEatSequences
+{
+	HOTDOG,
+	BURGER
+};
 
 enum eAnimationFlag
 {
@@ -82,6 +84,10 @@ enum eAnimationFlag
 	AF_BLENDOUT_WRT_LAST_FRAME = 536870912,
 	AF_USE_FULL_BLENDING = 1073741824
 };
+
+constexpr int defaultAF = AF_NOT_INTERRUPTABLE | AF_TAG_SYNC_IN | AF_TAG_SYNC_OUT | AF_HIDE_WEAPON | AF_ABORT_ON_WEAPON_DAMAGE;
+constexpr int upperSecondaryAF = AF_NOT_INTERRUPTABLE | AF_UPPERBODY | AF_SECONDARY | AF_HIDE_WEAPON | AF_ABORT_ON_WEAPON_DAMAGE;
+
 enum eScriptLookFlag
 {
 	SLF_DEFAULT = 0,
@@ -103,6 +109,7 @@ enum eScriptLookFlag
 	SLF_FROM_SCRIPT = 32768,
 	SLF_USE_REF_DIR_ABSOLUTE = 65536
 };
+
 enum eControlAction
 {
 	INPUT_NEXT_CAMERA = 0,
