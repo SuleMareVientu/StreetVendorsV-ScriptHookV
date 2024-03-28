@@ -1,7 +1,11 @@
 #pragma once
 
 #include <types.h>
+#include <set>
 #include "utils.h"
+
+static constexpr int busyVendorsMaxSize = 5;
+static std::set<Ped> busyVendors = {};
 
 static constexpr char* chooseAnimDict = "gestures@m@standing@casual";
 static constexpr char* chooseAnim = "gesture_you_soft";
@@ -38,8 +42,11 @@ enum eEatSequenceState
 class Customer {
 	Ped ped = NULL;
 	Ped vendor = NULL;
-	const int timeout = 27500; // in ms
+	const int timeout = 45000; // in ms
 	Timer timeoutTimer;
+	const int interval = 40000; // in ms
+	Timer intervalTimer;
+	bool disabledControlsLastFrame = false;
 	bool shouldPlayerStandStill = false;
 	int sequence = -1;
 	int sequenceState = FINISHED;
@@ -51,10 +58,15 @@ class Customer {
 	Vector3 destination = { NULL, NULL, NULL, NULL, NULL, NULL };
 	Object food = NULL;
 	bool PedExists();
+	bool IsPedPlayer();
+	void SetVendorBusy(bool toggle);
 	void PedTaskWalkToAndWait(float x, float y, float z, float heading, int nextState);
 	void PlayAnim(char* animDict, char* anim, int flag, int duration = -1);
 	void PlayAnimAndWait(char* animDict, char* anim, int flag, int nextState, bool standStill = false, int duration = -1);
 	void StartSequence(int type);
+	void SequenceFailsafe();
+	void SetPlayerControls();
+	void SetPedReactions();
 	void PlayHotdogEatSequence();
 	void PlayBurgerEatSequence();
 
