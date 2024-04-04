@@ -33,7 +33,7 @@ void Customer::SetVendorBusy(bool toggle)
 void Customer::PedTaskWalkToAndWait(float x, float y, float z, float heading, int nextState)
 {
 	if (IsPedPlayer())
-		TASK_GO_STRAIGHT_TO_COORD(ped, x, y, z, 1.0f, 5000, heading, 0.1f);
+		TASK_GO_STRAIGHT_TO_COORD(ped, x, y, z, 1.0f, 10000, heading, 0.1f);
 	else
 		TASK_GO_STRAIGHT_TO_COORD(ped, x, y, z, 1.0f, 30000, heading, 0.1f);
 
@@ -85,6 +85,7 @@ void Customer::SequenceFailsafe()
 	else if (timeoutTimer.Get() > timeout)
 	{
 		sequenceState = FINISHED;
+		DeleteObject(food);
 		SetPedReactions();
 	}
 	return;
@@ -163,7 +164,7 @@ void Customer::PlayHotdogEatSequence()
 			REMOVE_PED_HELMET(ped, true);
 
 		//Prevent ped from equipping weapon during sequence
-		SET_CURRENT_PED_WEAPON(ped, -1569615261, true);	//WEAPON_UNARMED
+		SET_CURRENT_PED_WEAPON(ped, WEAPON_UNARMED, true);
 		PedTaskWalkToAndWait(destination.x, destination.y, destination.z, standHeading, INITIALIZED);
 		break;
 	case WAITING_FOR_WALK_TASK_TO_END:
@@ -272,7 +273,7 @@ void Customer::PlayBurgerEatSequence()
 			REMOVE_PED_HELMET(ped, true);
 
 		//Prevent ped from equipping weapon during sequence
-		SET_CURRENT_PED_WEAPON(ped, -1569615261, true);	//WEAPON_UNARMED
+		SET_CURRENT_PED_WEAPON(ped, WEAPON_UNARMED, true);
 		PedTaskWalkToAndWait(destination.x, destination.y, destination.z, standHeading, INITIALIZED);
 		break;
 	case WAITING_FOR_WALK_TASK_TO_END:
@@ -405,6 +406,7 @@ void Customer::UpdateSequence()
 			return;
 	}
 
+	DeleteObject(food); //Force delete old food just in case it's still attached
 	pedLoc = GET_ENTITY_COORDS(ped, false);
 	Object stand = GetVendorStand(pedLoc, 5.0f);
 	Ped tmpVendor = NULL;
@@ -437,14 +439,15 @@ void Customer::UpdateSequence()
 
 		// Stop vendor from freaking out
 		SET_PED_CONFIG_FLAG(tmpVendor, PCF_DisableTalkTo, true);
+		REMOVE_PED_DEFENSIVE_AREA(tmpVendor, false);
 		REMOVE_PED_DEFENSIVE_AREA(tmpVendor, true);
 
 		if (IS_DISABLED_CONTROL_JUST_PRESSED(FRONTEND_CONTROL, INPUT_CONTEXT))
 		{
 			CLEAR_ALL_HELP_MESSAGES();
-			PlayAmbientSpeech(vendor, AmbDialogueHi);
 			vendor = tmpVendor;
 			SetVendorBusy(true);
+			PlayAmbientSpeech(vendor, AmbDialogueHi);
 			//Play desired eat sequence based on stand type
 			StartSequence(standType);
 		}

@@ -15,7 +15,9 @@ static void update()
 	// Check if player ped exists and control is on (e.g. not in a cutscene)
 	if (!DOES_ENTITY_EXIST(playerPed) || !IS_PLAYER_CONTROL_ON(player))
 		return;
-	
+
+	UpdateCashHUD();
+
 	playerCustomer.SetPed(playerPed);
 	playerCustomer.UpdateSequence();
 

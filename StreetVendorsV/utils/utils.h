@@ -18,6 +18,7 @@ constexpr Hash TrevorPed = -1686040670;			//joaat(Trevor)
 constexpr Hash SP0_TOTAL_CASH = 52740893;		//joaat(SP0_TOTAL_CASH)
 constexpr Hash SP1_TOTAL_CASH = 1153264002;		//joaat(SP1_TOTAL_CASH)
 constexpr Hash SP2_TOTAL_CASH = -1921710979;	//joaat(SP2_TOTAL_CASH)
+constexpr Hash WEAPON_UNARMED = -1569615261;	//joaat(WEAPON_UNARMED
 
 //Tasks
 constexpr Hash SCRIPT_TASK_GO_STRAIGHT_TO_COORD = 2106541073;	//joaat(SCRIPT_TASK_GO_STRAIGHT_TO_COORD)
@@ -27,6 +28,9 @@ constexpr float PEDMOVEBLENDRATIO_STILL = 0.0f;
 constexpr float PEDMOVEBLENDRATIO_WALK = 1.0f;
 constexpr float PEDMOVEBLENDRATIO_RUN = 2.0f;
 constexpr float PEDMOVEBLENDRATIO_SPRINT = 3.0f;
+
+//HUD enums
+constexpr int NEW_HUD_CASH = 3;
 
 class Timer {
 	int gameTimer = 0;
@@ -46,6 +50,7 @@ Object CreateObject(Hash model, Vector3 loc = { NULL, NULL, NULL, NULL, NULL, NU
 void DeleteObject(Object obj);
 int GetPlayerCash(Ped playerPed);
 void SetPlayerCash(Ped playerPed, int currentCash, int change);
+void UpdateCashHUD();
 bool PrintVendorMessage(int playerCash, int standType);
 bool AdditionalChecks(Ped ped);
 void DisablePlayerActionsThisFrame();
