@@ -10,9 +10,9 @@ Most of the behavior of the code was inspired by the decompiled GTA:IV scripts t
 Simply extract the ASI inside the game's root directory (where you have installed GTA:V and Script Hook V, **not** inside the "scripts" folder).
 
 ## Changelog:
-**v1.3** - NPCs can now walk up to vendors, bug fixes.
-**v1.2** - Rewrote the entire script, it's now asynchronous and generally more polished. Player will play the eat speech after he's done eating and non-main characters can you buy food too.
-**v1.1** - Added four rare models for vendors ("backup-vendors" inside ambientpedmodelsets.meta, only two points in the game).
+**v1.3** - NPCs can now walk up to vendors, bug fixes.  
+**v1.2** - Rewrote the entire script, it's now asynchronous and generally more polished. Player will play the eat speech after he's done eating and non-main characters can you buy food too.  
+**v1.1** - Added four rare models for vendors ("backup-vendors" inside ambientpedmodelsets.meta, only two points in the game).  
 
 ## Credits:
 - Inspired by [Working Hotdog Vendors](https://www.gta5-mods.com/scripts/working-hotdog-vendors) by [jedijosh920](https://www.gta5-mods.com/users/jedijosh920)
