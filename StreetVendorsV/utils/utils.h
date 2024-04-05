@@ -18,6 +18,19 @@ constexpr Hash TrevorPed = -1686040670;			//joaat(Trevor)
 constexpr Hash SP0_TOTAL_CASH = 52740893;		//joaat(SP0_TOTAL_CASH)
 constexpr Hash SP1_TOTAL_CASH = 1153264002;		//joaat(SP1_TOTAL_CASH)
 constexpr Hash SP2_TOTAL_CASH = -1921710979;	//joaat(SP2_TOTAL_CASH)
+constexpr Hash WEAPON_UNARMED = -1569615261;	//joaat(WEAPON_UNARMED
+
+//Tasks
+constexpr Hash SCRIPT_TASK_GO_STRAIGHT_TO_COORD = 2106541073;	//joaat(SCRIPT_TASK_GO_STRAIGHT_TO_COORD)
+
+//Ped move blend ratios
+constexpr float PEDMOVEBLENDRATIO_STILL = 0.0f;
+constexpr float PEDMOVEBLENDRATIO_WALK = 1.0f;
+constexpr float PEDMOVEBLENDRATIO_RUN = 2.0f;
+constexpr float PEDMOVEBLENDRATIO_SPRINT = 3.0f;
+
+//HUD enums
+constexpr int NEW_HUD_CASH = 3;
 
 class Timer {
 	int gameTimer = 0;
@@ -37,6 +50,7 @@ Object CreateObject(Hash model, Vector3 loc = { NULL, NULL, NULL, NULL, NULL, NU
 void DeleteObject(Object obj);
 int GetPlayerCash(Ped playerPed);
 void SetPlayerCash(Ped playerPed, int currentCash, int change);
+void UpdateCashHUD();
 bool PrintVendorMessage(int playerCash, int standType);
 bool AdditionalChecks(Ped ped);
 void DisablePlayerActionsThisFrame();
@@ -47,6 +61,16 @@ enum eEatSequences
 {
 	HOTDOG,
 	BURGER
+};
+
+enum ePedFlag {
+	//Ped Config Flags
+	PCF_DisableShockingEvents = 294,
+	PCF_DisableTalkTo = 329,
+
+	//Ped Reset Flags
+	PRF_DisablePlayerJumping = 46,
+	PRF_DisablePlayerVaulting = 47
 };
 
 enum eAnimationFlag
@@ -86,6 +110,7 @@ enum eAnimationFlag
 };
 
 constexpr int defaultAF = AF_NOT_INTERRUPTABLE | AF_TAG_SYNC_IN | AF_TAG_SYNC_OUT | AF_HIDE_WEAPON | AF_ABORT_ON_WEAPON_DAMAGE;
+constexpr int upperAF = AF_NOT_INTERRUPTABLE | AF_UPPERBODY | AF_TAG_SYNC_IN | AF_TAG_SYNC_OUT | AF_HIDE_WEAPON | AF_ABORT_ON_WEAPON_DAMAGE;
 constexpr int upperSecondaryAF = AF_NOT_INTERRUPTABLE | AF_UPPERBODY | AF_SECONDARY | AF_HIDE_WEAPON | AF_ABORT_ON_WEAPON_DAMAGE;
 
 enum eScriptLookFlag
@@ -109,6 +134,9 @@ enum eScriptLookFlag
 	SLF_FROM_SCRIPT = 32768,
 	SLF_USE_REF_DIR_ABSOLUTE = 65536
 };
+
+constexpr int PLAYER_CONTROL = 0;
+constexpr int FRONTEND_CONTROL = 2;
 
 enum eControlAction
 {

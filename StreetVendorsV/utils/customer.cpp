@@ -1,9 +1,6 @@
 #include <natives.h>
 #include "customer.h"
 
-static constexpr int busyVendorsMaxSize = 20;
-static std::set<Ped> busyVendors = {};
-
 bool Customer::PedExists()
 {
 	if (DOES_ENTITY_EXIST(ped) && IS_ENTITY_A_PED(ped))
@@ -20,12 +17,23 @@ bool Customer::IsPedPlayer()
 	return false;
 }
 
+void Customer::SetVendorBusy(bool toggle)
+{
+	if (vendor == NULL)
+		return;
+
+	if (toggle)
+		busyVendors.emplace(vendor);
+	else
+		busyVendors.erase(vendor);
+	return;
+}
+
 //https://alloc8or.re/gta5/doc/enums/eScriptTaskHash.txt
 void Customer::PedTaskWalkToAndWait(float x, float y, float z, float heading, int nextState)
 {
-	//Different teleport time for player/peds
 	if (IsPedPlayer())
-		TASK_GO_STRAIGHT_TO_COORD(ped, x, y, z, 1.0f, 5000, heading, 0.1f);
+		TASK_GO_STRAIGHT_TO_COORD(ped, x, y, z, 1.0f, 10000, heading, 0.1f);
 	else
 		TASK_GO_STRAIGHT_TO_COORD(ped, x, y, z, 1.0f, 30000, heading, 0.1f);
 
@@ -51,15 +59,6 @@ void Customer::PlayAnimAndWait(char* animDict, char* anim, int flag, int nextSta
 	return;
 }
 
-void Customer::SetVendorBusy()
-{
-	if (sequenceState == FINISHED)
-		busyVendors.erase(vendor);
-	else
-		busyVendors.emplace(vendor);
-	return;
-}
-
 void Customer::StartSequence(int type)
 {
 	switch (type)
@@ -78,36 +77,85 @@ void Customer::StartSequence(int type)
 	return;
 }
 
+void Customer::SequenceFailsafe()
+{
+	//Stop sequence when timeout timer runs out (default 35 seconds)
+	if (sequenceState == STREAM_ASSETS_IN || sequenceState == FINISHED)
+		timeoutTimer.Set(0);
+	else if (timeoutTimer.Get() > timeout)
+	{
+		sequenceState = FINISHED;
+		DeleteObject(food);
+		SetPedReactions();
+	}
+	return;
+}
+
+void Customer::SetPlayerControls()
+{
+	if (!IsPedPlayer())
+		return;
+
+	//Hide Phone and mobile browser
+	if (!disabledControlsLastFrame)
+	{
+		SET_CONTROL_VALUE_NEXT_FRAME(FRONTEND_CONTROL, INPUT_CELLPHONE_CANCEL, 1.0f);
+		SET_CONTROL_VALUE_NEXT_FRAME(FRONTEND_CONTROL, INPUT_CURSOR_CANCEL, 1.0f);
+		disabledControlsLastFrame = true;
+	}
+	else
+		disabledControlsLastFrame = false;
+
+	if (sequenceState != STREAM_ASSETS_IN && sequenceState != FLUSH_ASSETS && sequenceState != FINISHED)
+		DisablePlayerActionsThisFrame();
+
+	if (sequenceState == WAITING_FOR_WALK_TASK_TO_END || sequenceState == INITIALIZED || sequenceState == TAKE)
+		DisablePlayerControlThisFrame();
+
+	if (sequenceState == WAITING_FOR_ANIMATION_TO_END)
+	{
+		if (shouldPlayerStandStill)
+			DisablePlayerControlThisFrame();
+	}
+	else
+		shouldPlayerStandStill = false;
+
+	return;
+}
+
+void Customer::SetPedReactions()
+{
+	if (sequenceState == FINISHED)
+	{
+		SET_PED_CAN_PLAY_GESTURE_ANIMS(ped, true);
+
+		if (!IsPedPlayer())
+		{
+			SET_PED_CONFIG_FLAG(ped, PCF_DisableShockingEvents, false);
+			SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, false);
+		}
+	}
+	else
+	{
+		SET_PED_CAN_PLAY_GESTURE_ANIMS(ped, false);
+
+		if (!IsPedPlayer())
+		{
+			SET_PED_CONFIG_FLAG(ped, PCF_DisableShockingEvents, true);
+			SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
+		}
+	}
+
+	return;
+}
+
 void Customer::PlayHotdogEatSequence()
 {
 	pedLoc = GET_ENTITY_COORDS(ped, false);
 	int rightWristID = GET_PED_BONE_INDEX(ped, 28422);
 
-	//Player control should be disabled here and not during the sequence
-	if (IsPedPlayer())
-	{
-		if (sequenceState != STREAM_ASSETS_IN && sequenceState != FLUSH_ASSETS && sequenceState != FINISHED)
-			DisablePlayerActionsThisFrame();
-
-		if (sequenceState == WAITING_FOR_WALK_TASK_TO_END || sequenceState == INITIALIZED || sequenceState == TAKE)
-			DisablePlayerControlThisFrame();
-
-		if (sequenceState == WAITING_FOR_ANIMATION_TO_END)
-		{
-			if (shouldPlayerStandStill)
-				DisablePlayerControlThisFrame();
-		}
-		else
-			shouldPlayerStandStill = false;
-	}
-	else
-	{
-		SET_PED_SHOULD_PLAY_NORMAL_SCENARIO_EXIT(ped);
-		if (sequenceState != FINISHED)
-			SET_PED_CONFIG_FLAG(ped, 294, true);	//PCF_DisableShockingEvents
-		else
-			SET_PED_CONFIG_FLAG(ped, 294, false);	//PCF_DisableShockingEvents
-	}
+	SequenceFailsafe();
+	SetPlayerControls(); //Player control should be disabled here and not during the sequence
 
 	switch (sequenceState)
 	{
@@ -116,15 +164,13 @@ void Customer::PlayHotdogEatSequence()
 			REMOVE_PED_HELMET(ped, true);
 
 		//Prevent ped from equipping weapon during sequence
-		SET_CURRENT_PED_WEAPON(ped, -1569615261, true);	//WEAPON_UNARMED
+		SET_CURRENT_PED_WEAPON(ped, WEAPON_UNARMED, true);
 		PedTaskWalkToAndWait(destination.x, destination.y, destination.z, standHeading, INITIALIZED);
 		break;
 	case WAITING_FOR_WALK_TASK_TO_END:
-		if (GET_SCRIPT_TASK_STATUS(ped, 2106541073) == 7)
+		if (GET_SCRIPT_TASK_STATUS(ped, SCRIPT_TASK_GO_STRAIGHT_TO_COORD) == 7)
 		{
-			if (IsPedPlayer())
-				SetPlayerCash(ped, GetPlayerCash(ped), -5);
-
+			SetPlayerCash(ped, GetPlayerCash(ped), -5);
 			PlayAmbientSpeech(ped, AmbDialogueBuy);
 			sequenceState = nextSequenceState;
 		}
@@ -132,7 +178,7 @@ void Customer::PlayHotdogEatSequence()
 	case INITIALIZED:
 		food = CreateObject(hotdogHash);
 		SET_ENTITY_AS_MISSION_ENTITY(food, true, true);
-		PlayAnimAndWait(chooseAnimDict, chooseAnim, defaultAF, TAKE, true);
+		PlayAnimAndWait(chooseAnimDict, chooseAnim, upperAF, TAKE, true);
 		break;
 	case WAITING_FOR_ANIMATION_TO_END:
 		if (!IS_ENTITY_PLAYING_ANIM(ped, lastAnimDict, lastAnim, 3))
@@ -140,7 +186,7 @@ void Customer::PlayHotdogEatSequence()
 		break;
 	case TAKE:
 		if (!IS_ENTITY_PLAYING_ANIM(ped, takeAnimDict, takeAnim, 3))
-			PlayAnim(takeAnimDict, takeAnim, defaultAF);
+			PlayAnim(takeAnimDict, takeAnim, upperAF);
 		else
 		{
 			SET_ENTITY_ANIM_SPEED(ped, takeAnimDict, takeAnim, 0.65f);
@@ -170,7 +216,15 @@ void Customer::PlayHotdogEatSequence()
 			}
 		}
 		else
+		{
+			// Free the vendor sooner for NPCs so the player can eat too
+			if (!IsPedPlayer())
+			{
+				SetVendorBusy(false);
+				vendor = NULL;
+			}
 			PlayAnimAndWait(eatingAnimDict, eatingEndAnim, upperSecondaryAF, FLUSH_ASSETS);
+		}
 		break;
 	case FLUSH_ASSETS:
 		DeleteObject(food);
@@ -199,14 +253,8 @@ void Customer::PlayHotdogEatSequence()
 		break;
 	}
 
-	//Needs to be added at the end of the sequence
-	SetVendorBusy();
-
-	//Set player gestures
-	if (sequenceState == FINISHED)
-		SET_PED_CAN_PLAY_GESTURE_ANIMS(ped, true);
-	else
-		SET_PED_CAN_PLAY_GESTURE_ANIMS(ped, false);
+	//Disable ped gestures and block non-player peds from reacting to temporary events
+	SetPedReactions();
 	return;
 }
 
@@ -215,37 +263,8 @@ void Customer::PlayBurgerEatSequence()
 	pedLoc = GET_ENTITY_COORDS(ped, false);
 	int leftWristID = GET_PED_BONE_INDEX(ped, 60309);
 
-	//Stop sequence when timeout timer runs out (default 35 seconds)
-	if (sequenceState == STREAM_ASSETS_IN || sequenceState == FINISHED)
-		timeoutTimer.Set(0);
-	else if (timeoutTimer.Get() > timeout)
-		sequenceState = FINISHED;
-
-	//Player control should be disabled here and not during the sequence
-	if (IsPedPlayer())
-	{
-		if (sequenceState != STREAM_ASSETS_IN && sequenceState != FLUSH_ASSETS && sequenceState != FINISHED)
-			DisablePlayerActionsThisFrame();
-
-		if (sequenceState == WAITING_FOR_WALK_TASK_TO_END || sequenceState == INITIALIZED || sequenceState == TAKE)
-			DisablePlayerControlThisFrame();
-
-		if (sequenceState == WAITING_FOR_ANIMATION_TO_END)
-		{
-			if (shouldPlayerStandStill)
-				DisablePlayerControlThisFrame();
-		}
-		else
-			shouldPlayerStandStill = false;
-	}
-	else
-	{
-		SET_PED_SHOULD_PLAY_NORMAL_SCENARIO_EXIT(ped);
-		if (sequenceState != FINISHED)
-			SET_PED_CONFIG_FLAG(ped, 294, true);	//PCF_DisableShockingEvents
-		else
-			SET_PED_CONFIG_FLAG(ped, 294, false);	//PCF_DisableShockingEvents
-	}
+	SequenceFailsafe();
+	SetPlayerControls(); //Player control should be disabled here and not during the sequence
 
 	switch (sequenceState)
 	{
@@ -254,15 +273,13 @@ void Customer::PlayBurgerEatSequence()
 			REMOVE_PED_HELMET(ped, true);
 
 		//Prevent ped from equipping weapon during sequence
-		SET_CURRENT_PED_WEAPON(ped, -1569615261, true);	//WEAPON_UNARMED
+		SET_CURRENT_PED_WEAPON(ped, WEAPON_UNARMED, true);
 		PedTaskWalkToAndWait(destination.x, destination.y, destination.z, standHeading, INITIALIZED);
 		break;
 	case WAITING_FOR_WALK_TASK_TO_END:
-		if (GET_SCRIPT_TASK_STATUS(ped, 2106541073) == 7)
+		if (GET_SCRIPT_TASK_STATUS(ped, SCRIPT_TASK_GO_STRAIGHT_TO_COORD) == 7)
 		{
-			if (IsPedPlayer())
-				SetPlayerCash(ped, GetPlayerCash(ped), -5);
-
+			SetPlayerCash(ped, GetPlayerCash(ped), -5);
 			PlayAmbientSpeech(ped, AmbDialogueBuy);
 			sequenceState = nextSequenceState;
 		}
@@ -270,17 +287,17 @@ void Customer::PlayBurgerEatSequence()
 	case INITIALIZED:
 		food = CreateObject(burgerHash);
 		SET_ENTITY_AS_MISSION_ENTITY(food, true, true);
-		PlayAnimAndWait(chooseAnimDict, chooseAnim, defaultAF, TAKE, true);
+		PlayAnimAndWait(chooseAnimDict, chooseAnim, upperAF, TAKE, true);
 		break;
 	case WAITING_FOR_ANIMATION_TO_END:
 		if (!IS_ENTITY_PLAYING_ANIM(ped, lastAnimDict, lastAnim, 3))
 			sequenceState = nextSequenceState;
-		else if (lastAnimDict == burgerAnimDict && lastAnim == burgerAnim)	//Special case for burger eating anim
+		else if (lastAnimDict == burgerAnimDict && lastAnim == burgerAnim)	//Slow down burger eating anim
 			SET_ENTITY_ANIM_SPEED(ped, burgerAnimDict, burgerAnim, 0.65f);
 		break;
 	case TAKE:
 		if (!IS_ENTITY_PLAYING_ANIM(ped, takeBurgerAnimDict, takeBurgerAnim, 3))
-			PlayAnim(takeBurgerAnimDict, takeBurgerAnim, defaultAF);
+			PlayAnim(takeBurgerAnimDict, takeBurgerAnim, upperAF);
 		else
 		{
 			SET_ENTITY_ANIM_SPEED(ped, takeBurgerAnimDict, takeBurgerAnim, 0.65f);
@@ -333,14 +350,8 @@ void Customer::PlayBurgerEatSequence()
 		break;
 	}
 
-	//Needs to be added at the end of the sequence
-	SetVendorBusy();
-
-	//Set player gestures
-	if (sequenceState == FINISHED)
-		SET_PED_CAN_PLAY_GESTURE_ANIMS(ped, true);
-	else
-		SET_PED_CAN_PLAY_GESTURE_ANIMS(ped, false);
+	//Disable ped gestures and block non-player peds from reacting to temporary events
+	SetPedReactions();
 	return;
 }
 
@@ -364,21 +375,19 @@ void Customer::UpdateSequence()
 	if (busyVendors.size() > busyVendorsMaxSize)
 		busyVendors.clear();
 
-	if (!PedExists() || IS_ENTITY_DEAD(ped, false) || IS_PED_DEAD_OR_DYING(ped, true) || IS_PED_INJURED(ped))
+	if (!PedExists() || IS_ENTITY_DEAD(ped, false) || IS_PED_DEAD_OR_DYING(ped, true) || IS_PED_INJURED(ped)
+		|| IS_PED_IN_MELEE_COMBAT(ped) || COUNT_PEDS_IN_COMBAT_WITH_TARGET(ped) > 0 || IS_PED_USING_ANY_SCENARIO(ped))
 	{
 		ped = NULL;
 		sequenceState = FINISHED;
-		SetVendorBusy();
 		return;
 	}
 
-	//Prevent peds from blocking vendor and other customers	DO NOT RETURN
-	if (IS_PED_USING_ANY_SCENARIO(ped))
-		sequenceState = FINISHED;
-
 	if (sequenceState != FINISHED)
 	{
-		intervalTimer.Set(0); //Reset ped timer
+		if (!IsPedPlayer())
+			intervalTimer.Set(0); //Reset ped timer
+		
 		switch (sequence)
 		{
 		case HOTDOG:
@@ -390,76 +399,68 @@ void Customer::UpdateSequence()
 	}
 	else
 	{
+		SetVendorBusy(false);
+		vendor = NULL;
 		//Return if not enough time has passed since last costumer
 		if (intervalTimer.Get() < interval && !IsPedPlayer())
 			return;
 	}
 
+	DeleteObject(food); //Force delete old food just in case it's still attached
+	pedLoc = GET_ENTITY_COORDS(ped, false);
+	Object stand = GetVendorStand(pedLoc, 5.0f);
+	Ped tmpVendor = NULL;
+	//Don't waste resources if stand or vendor aren't found
+	if (stand == NULL || !FindVendor(stand, &tmpVendor))
+		return;
+
+	//Checks if the vendor isn't busy
+	if (busyVendors.find(tmpVendor) != busyVendors.end())
+		return;
+
+	//Initialize vars
+	Vector3 standLoc = GET_ENTITY_COORDS(stand, false);
+	Vector3 standForwardVec = GET_ENTITY_FORWARD_VECTOR(stand);
+	standHeading = GET_ENTITY_HEADING(stand);
+	destination = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(stand, -0.5f, -0.75f, 0.0f);
+	//Get whether the stand is for hotdogs or burgers: NULL, 1 = hotdog stand, 2 = burger stand
+	int standType = GetStandType(stand);
+
 	if (IsPedPlayer())
 	{
-		//Checks if the vendor isn't busy
-		if (busyVendors.find(vendor) != busyVendors.end())
-			return;
-
-		pedLoc = GET_ENTITY_COORDS(ped, false);
-		Object stand = GetVendorStand(pedLoc, 5.0f);
-
-		//Don't waste resources if stand isn't found...
-		if (stand == NULL)
-			return;
-
-		//Initialize vars
-		Vector3 standLoc = GET_ENTITY_COORDS(stand, false);
-		Vector3 standForwardVec = GET_ENTITY_FORWARD_VECTOR(stand);
-		standHeading = GET_ENTITY_HEADING(stand);
-		destination = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(stand, -0.5f, -0.75f, 0.0f);
-		int playerCash = GetPlayerCash(ped);
-		//Get whether the stand is for hotdogs or burgers: NULL, 1 = hotdog stand, 2 = burger stand
-		int standType = GetStandType(stand);
-
-		//Checks if player is nwDADear vendor, prints hotdog message and checks if he's in a correct state to start eat sequence, else returns
+		//Checks if player is near the vendor, prints hotdog message and checks if he's in a correct state to start eat sequence, else returns
 		if (VDIST2(pedLoc.x, pedLoc.y, pedLoc.z, destination.x, destination.y, destination.z) > 4.0f)
 			return;
 
-		//Checks if the vendor is near the player, if hotdog message can be printed (ped isn't wanted & has money) and 
+		//Checks if hotdog message can be printed (ped isn't wanted & has money) and 
 		//if the player isn't falling, jumping etc.	KEEP IN ORDER!
-		if (!FindVendor(stand, &vendor) || busyVendors.count(vendor) != 0 || !PrintVendorMessage(playerCash, standType) || !AdditionalChecks(ped))
+		if (!PrintVendorMessage(GetPlayerCash(ped), standType) || !AdditionalChecks(ped))
 			return;
 
-		SET_PED_CONFIG_FLAG(vendor, 329, true);	//PCF_DisableTalkTo
+		// Stop vendor from freaking out
+		SET_PED_CONFIG_FLAG(tmpVendor, PCF_DisableTalkTo, true);
+		REMOVE_PED_DEFENSIVE_AREA(tmpVendor, false);
+		REMOVE_PED_DEFENSIVE_AREA(tmpVendor, true);
 
-		if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_CONTEXT))
+		if (IS_DISABLED_CONTROL_JUST_PRESSED(FRONTEND_CONTROL, INPUT_CONTEXT))
 		{
 			CLEAR_ALL_HELP_MESSAGES();
+			vendor = tmpVendor;
+			SetVendorBusy(true);
 			PlayAmbientSpeech(vendor, AmbDialogueHi);
 			//Play desired eat sequence based on stand type
 			StartSequence(standType);
 		}
-		return;
 	}
 	else
 	{
-		pedLoc = GET_ENTITY_COORDS(ped, false);
-		Object stand = GetVendorStand(pedLoc, 20.0f);
-
-		//Don't waste resources if stand isn't found...
-		if (stand == NULL)
-			return;
-
-		//Initialize vars
-		Vector3 standLoc = GET_ENTITY_COORDS(stand, false);
-		Vector3 standForwardVec = GET_ENTITY_FORWARD_VECTOR(stand);
-		standHeading = GET_ENTITY_HEADING(stand);
-		destination = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(stand, -0.5f, -0.75f, 0.0f);
-		//Get whether the stand is for hotdogs or burgers: NULL, 1 = hotdog stand, 2 = burger stand
-		int standType = GetStandType(stand);
-
-		//Checks if the vendor is near the ped and he's not busy
-		//if the ped isn't falling, jumping etc.	KEEP IN ORDER!
-		if (!FindVendor(stand, &vendor) || busyVendors.count(vendor) != 0 || !AdditionalChecks(ped))
-			return;
-
-		StartSequence(standType);
+		//Checks if the ped isn't falling, jumping etc.
+		if (AdditionalChecks(ped))
+		{
+			vendor = tmpVendor;
+			SetVendorBusy(true);
+			StartSequence(standType);
+		}
 	}
 	return;
 }

@@ -15,11 +15,13 @@ static void update()
 	// Check if player ped exists and control is on (e.g. not in a cutscene)
 	if (!DOES_ENTITY_EXIST(playerPed) || !IS_PLAYER_CONTROL_ON(player))
 		return;
-	
+
+	UpdateCashHUD();
+
 	playerCustomer.SetPed(playerPed);
 	playerCustomer.UpdateSequence();
 
-	//Random peds run the task every 30 seconds (by default)
+	//Random peds run the task every 40 seconds (by default)
 	randomCustomer.UpdateSequence();
 
 	Object stand = GetVendorStand(GET_ENTITY_COORDS(playerPed, false), 30.0f);
