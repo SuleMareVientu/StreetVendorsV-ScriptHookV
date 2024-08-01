@@ -1,27 +1,27 @@
 #pragma once
 #include <types.h>
 
-constexpr Hash hotdogStandHash = -1581502570;	//prop_hotdogstand_01
-constexpr Hash burgerStandHash = 1129053052;	//prop_burgerstand_01
-constexpr Hash S_M_M_StrVend_01 = -829353047;	//S_M_M_StrVend_01
-constexpr Hash S_M_Y_StrVend_01 = -1837161693;	//S_M_Y_StrVend_01
-constexpr Hash A_M_Y_GenStreet_01 = -1736970383;//A_M_Y_GenStreet_01
-constexpr Hash A_M_Y_GenStreet_02 = 891398354;	//A_M_Y_GenStreet_02
-constexpr Hash A_M_Y_Downtown_01 = 766375082;	//A_M_Y_Downtown_01
-constexpr Hash A_M_Y_Latino_01 = 321657486;		//A_M_Y_Latino_01
-constexpr Hash hotdogHash = -1729226035;		//prop_cs_hotdog_01
-constexpr Hash eatenHotdogHash = -1490012335;	//prop_cs_hotdog_02
-constexpr Hash burgerHash = -2054442544;		//prop_cs_burger_01
-constexpr Hash MichaelPed = 225514697;			//joaat(Michael)
-constexpr Hash FranklinPed = -1692214353;		//joaat(Franklin)
-constexpr Hash TrevorPed = -1686040670;			//joaat(Trevor)
-constexpr Hash SP0_TOTAL_CASH = 52740893;		//joaat(SP0_TOTAL_CASH)
-constexpr Hash SP1_TOTAL_CASH = 1153264002;		//joaat(SP1_TOTAL_CASH)
-constexpr Hash SP2_TOTAL_CASH = -1921710979;	//joaat(SP2_TOTAL_CASH)
-constexpr Hash WEAPON_UNARMED = -1569615261;	//joaat(WEAPON_UNARMED
+constexpr int hotdogStandHash = 0xA1BC2F96;		//prop_hotdogstand_01
+constexpr int burgerStandHash = 0x434BFB7C;		//prop_burgerstand_01
+constexpr int S_M_M_StrVend_01 = 0xCE9113A9;	//S_M_M_StrVend_01
+constexpr int S_M_Y_StrVend_01 = 0x927F2323;	//S_M_Y_StrVend_01
+constexpr int A_M_Y_GenStreet_01 = 0x9877EF71;	//A_M_Y_GenStreet_01
+constexpr int A_M_Y_GenStreet_02 = 0x3521A8D2;	//A_M_Y_GenStreet_02
+constexpr int A_M_Y_Downtown_01 = 0x2DADF4AA;	//A_M_Y_Downtown_01
+constexpr int A_M_Y_Latino_01 = 0x132C1A8E;		//A_M_Y_Latino_01
+constexpr int hotdogHash = 0x98EE1ACD;			//prop_cs_hotdog_01
+constexpr int eatenHotdogHash = 0xA7303751;		//prop_cs_hotdog_02
+constexpr int burgerHash = 0x858BB1D0;			//prop_cs_burger_01
+constexpr int MichaelPed = 0xD7114C9;			//Player_Zero
+constexpr int FranklinPed = 0x9B22DBAF;			//Player_One
+constexpr int TrevorPed = 0x9B810FA2;			//Player_Two
+constexpr int SP0_TOTAL_CASH = 0x324C31D;		//SP0_TOTAL_CASH
+constexpr int SP1_TOTAL_CASH = 0x44BD6982;		//SP1_TOTAL_CASH
+constexpr int SP2_TOTAL_CASH = 0x8D75047D;		//SP2_TOTAL_CASH
+constexpr int WEAPON_UNARMED = 0xA2719263;		//WEAPON_UNARMED
 
 //Tasks
-constexpr Hash SCRIPT_TASK_GO_STRAIGHT_TO_COORD = 2106541073;	//joaat(SCRIPT_TASK_GO_STRAIGHT_TO_COORD)
+constexpr int SCRIPT_TASK_GO_STRAIGHT_TO_COORD = 0x7D8F4411;	//joaat(SCRIPT_TASK_GO_STRAIGHT_TO_COORD)
 
 //Ped move blend ratios
 constexpr float PEDMOVEBLENDRATIO_STILL = 0.0f;
@@ -39,7 +39,7 @@ public:
 	int Get();
 };
 
-void PrintHelp(char* string);
+void PrintHelp(char* string, bool playSound, int overrideDuration = -1);
 Object GetVendorStand(Vector3 pedLoc, float radious);
 int GetStandType(Object stand);
 bool IsPedVendor(Ped ped);
@@ -63,14 +63,18 @@ enum eEatSequences
 	BURGER
 };
 
-enum ePedFlag {
+enum PedFlag {
 	//Ped Config Flags
+	PCF_PhoneDisableTextingAnimations = 242,
+	PCF_PhoneDisableTalkingAnimations = 243,
+	PCF_PhoneDisableCameraAnimations = 244,
 	PCF_DisableShockingEvents = 294,
 	PCF_DisableTalkTo = 329,
 
 	//Ped Reset Flags
 	PRF_DisablePlayerJumping = 46,
-	PRF_DisablePlayerVaulting = 47
+	PRF_DisablePlayerVaulting = 47,
+	PRF_DisableSecondaryAnimationTasks = 58
 };
 
 enum eAnimationFlag

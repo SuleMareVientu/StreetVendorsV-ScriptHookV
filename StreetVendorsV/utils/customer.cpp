@@ -127,7 +127,15 @@ void Customer::SetPedReactions()
 {
 	if (sequenceState == FINISHED)
 	{
+		SET_PED_CONFIG_FLAG(ped, PCF_PhoneDisableTextingAnimations, false);
+		SET_PED_CONFIG_FLAG(ped, PCF_PhoneDisableTalkingAnimations, false);
+		SET_PED_CONFIG_FLAG(ped, PCF_PhoneDisableCameraAnimations, false);
 		SET_PED_CAN_PLAY_GESTURE_ANIMS(ped, true);
+		SET_PED_CAN_PLAY_AMBIENT_ANIMS(ped, true);
+		SET_PED_CAN_PLAY_AMBIENT_BASE_ANIMS(ped, true);
+		SET_PED_CAN_PLAY_AMBIENT_IDLES(ped, false, false);
+		SET_PED_STEALTH_MOVEMENT(ped, true, NULL);
+		SET_PED_USING_ACTION_MODE(ped, true, 0, NULL);
 
 		if (!IsPedPlayer())
 		{
@@ -137,7 +145,15 @@ void Customer::SetPedReactions()
 	}
 	else
 	{
+		SET_PED_CONFIG_FLAG(ped, PCF_PhoneDisableTextingAnimations, true);
+		SET_PED_CONFIG_FLAG(ped, PCF_PhoneDisableTalkingAnimations, true);
+		SET_PED_CONFIG_FLAG(ped, PCF_PhoneDisableCameraAnimations, true);
 		SET_PED_CAN_PLAY_GESTURE_ANIMS(ped, false);
+		SET_PED_CAN_PLAY_AMBIENT_ANIMS(ped, false);
+		SET_PED_CAN_PLAY_AMBIENT_BASE_ANIMS(ped, false);
+		SET_PED_CAN_PLAY_AMBIENT_IDLES(ped, true, true);
+		SET_PED_STEALTH_MOVEMENT(ped, false, NULL);
+		SET_PED_USING_ACTION_MODE(ped, false, -1, NULL);
 
 		if (!IsPedPlayer())
 		{
@@ -177,7 +193,7 @@ void Customer::PlayHotdogEatSequence()
 		break;
 	case INITIALIZED:
 		food = CreateObject(hotdogHash);
-		SET_ENTITY_AS_MISSION_ENTITY(food, true, true);
+		SET_ENTITY_AS_MISSION_ENTITY(food, false, true);
 		PlayAnimAndWait(chooseAnimDict, chooseAnim, upperAF, TAKE, true);
 		break;
 	case WAITING_FOR_ANIMATION_TO_END:
@@ -286,7 +302,7 @@ void Customer::PlayBurgerEatSequence()
 		break;
 	case INITIALIZED:
 		food = CreateObject(burgerHash);
-		SET_ENTITY_AS_MISSION_ENTITY(food, true, true);
+		SET_ENTITY_AS_MISSION_ENTITY(food, false, true);
 		PlayAnimAndWait(chooseAnimDict, chooseAnim, upperAF, TAKE, true);
 		break;
 	case WAITING_FOR_ANIMATION_TO_END:
@@ -375,8 +391,7 @@ void Customer::UpdateSequence()
 	if (busyVendors.size() > busyVendorsMaxSize)
 		busyVendors.clear();
 
-	if (!PedExists() || IS_ENTITY_DEAD(ped, false) || IS_PED_DEAD_OR_DYING(ped, true) || IS_PED_INJURED(ped)
-		|| IS_PED_IN_MELEE_COMBAT(ped) || COUNT_PEDS_IN_COMBAT_WITH_TARGET(ped) > 0 || IS_PED_USING_ANY_SCENARIO(ped))
+	if (!AdditionalChecks(ped))
 	{
 		ped = NULL;
 		sequenceState = FINISHED;
