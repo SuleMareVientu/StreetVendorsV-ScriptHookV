@@ -1,4 +1,4 @@
-# StreetVendorsV-ScriptHookV [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+# StreetVendorsV-ScriptHookV [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa] [![GitHub all releases](https://img.shields.io/github/downloads/SuleMareVientu/StreetVendorsV-ScriptHookV/total?label=Total%20Downloads&logo=GitHub)](https://github.com/SuleMareVientu/StreetVendorsV-ScriptHookV/releases/latest)
 ![Screenshot](https://github.com/SuleMareVientu/StreetVendorsV-ScriptHookV/blob/images/StreetVendorsV.png?raw=true)  
 This mod aims to reintroduce the street vendors present in the previous GTA entry.  
 Now you can walk up to a vendor stand and, if the vendor is present, buy a hotdog/burger for 5$ and heal your health, with fully working animations and a money system.  
