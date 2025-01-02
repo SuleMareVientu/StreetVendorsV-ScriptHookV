@@ -3,6 +3,10 @@
 
 constexpr int hotdogStandHash = 0xA1BC2F96;		//prop_hotdogstand_01
 constexpr int burgerStandHash = 0x434BFB7C;		//prop_burgerstand_01
+constexpr int LChotdogStandHash1 = 0x1F5BA936;  //gb_hotdogstand01
+constexpr int LChotdogStandHash2 = 0x7221CEBD;  //gb_hotdogstand02
+constexpr int LChotdogStandHash3 = 0x43EA7253;  //gb_hotdogstand03
+constexpr int LChotdogStandHash4 = 0x16BA97F4;  //gb_hotdogstand04
 constexpr int S_M_M_StrVend_01 = 0xCE9113A9;	//S_M_M_StrVend_01
 constexpr int S_M_Y_StrVend_01 = 0x927F2323;	//S_M_Y_StrVend_01
 constexpr int A_M_Y_GenStreet_01 = 0x9877EF71;	//A_M_Y_GenStreet_01

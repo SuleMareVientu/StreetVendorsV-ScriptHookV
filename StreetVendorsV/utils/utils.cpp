@@ -23,33 +23,34 @@ void PrintHelp(char* string, bool playSound, int overrideDuration)
 
 Object GetVendorStand(Vector3 pedLoc, float radious)
 {
-	Object hotdogStand = GET_CLOSEST_OBJECT_OF_TYPE(pedLoc.x, pedLoc.y, pedLoc.z, radious, hotdogStandHash, false, false, false);
-	Object burgerStand = GET_CLOSEST_OBJECT_OF_TYPE(pedLoc.x, pedLoc.y, pedLoc.z, radious, burgerStandHash, false, false, false);
+	Object stands[] = {
+		GET_CLOSEST_OBJECT_OF_TYPE(pedLoc.x, pedLoc.y, pedLoc.z, radious, hotdogStandHash, false, false, false),
+		GET_CLOSEST_OBJECT_OF_TYPE(pedLoc.x, pedLoc.y, pedLoc.z, radious, burgerStandHash, false, false, false),
+		GET_CLOSEST_OBJECT_OF_TYPE(pedLoc.x, pedLoc.y, pedLoc.z, radious, LChotdogStandHash1, false, false, false),
+		GET_CLOSEST_OBJECT_OF_TYPE(pedLoc.x, pedLoc.y, pedLoc.z, radious, LChotdogStandHash2, false, false, false),
+		GET_CLOSEST_OBJECT_OF_TYPE(pedLoc.x, pedLoc.y, pedLoc.z, radious, LChotdogStandHash3, false, false, false),
+		GET_CLOSEST_OBJECT_OF_TYPE(pedLoc.x, pedLoc.y, pedLoc.z, radious, LChotdogStandHash4, false, false, false)
+	};
 
-	if (hotdogStand == NULL && burgerStand == NULL)
-		return NULL;
-	else if (hotdogStand != NULL && burgerStand != NULL)
+	Object closestStand = NULL;
+	float closestDistance = 10000;
+
+	for (int i = 0; i < sizeof(stands) / sizeof(stands[0]); i++)
 	{
-		Vector3 hotdogStandLoc = GET_ENTITY_COORDS(hotdogStand, false);
-		Vector3 burgerStandLoc = GET_ENTITY_COORDS(burgerStand, false);
-		float distHotdog = VDIST2(pedLoc.x, pedLoc.y, pedLoc.z, hotdogStandLoc.x, hotdogStandLoc.y, hotdogStandLoc.z);
-		float distBurger = VDIST2(pedLoc.x, pedLoc.y, pedLoc.z, burgerStandLoc.x, burgerStandLoc.y, burgerStandLoc.z);
-		if (distHotdog < distBurger)
-			return hotdogStand;
-		else
-			return burgerStand;
-	}
-	else
-	{
-		switch (hotdogStand)
+		if (stands[i] != NULL)
 		{
-		case NULL:
-			return burgerStand;	break;
-		default:
-			return hotdogStand;	break;
+			Vector3 standLoc = GET_ENTITY_COORDS(stands[i], false);
+			float distance = VDIST2(pedLoc.x, pedLoc.y, pedLoc.z, standLoc.x, standLoc.y, standLoc.z);
+
+			if (distance < closestDistance)
+			{
+				closestDistance = distance;
+				closestStand = stands[i];
+			}
 		}
 	}
-	return NULL;
+
+	return closestStand;
 }
 
 int GetStandType(Object stand)
@@ -61,6 +62,14 @@ int GetStandType(Object stand)
 		standType = HOTDOG;	break;
 	case burgerStandHash:
 		standType = BURGER;	break;
+	case LChotdogStandHash1:
+		standType = HOTDOG; break;
+	case LChotdogStandHash2:
+		standType = HOTDOG; break;
+	case LChotdogStandHash3:
+		standType = HOTDOG; break;
+	case LChotdogStandHash4:
+		standType = HOTDOG; break;
 	}
 	return standType;
 }
